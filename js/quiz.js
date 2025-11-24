@@ -1,5 +1,6 @@
 // Author: John Kokolis <johnk@prosvasis.org>
 // License: MIT
+// Repository: https://github.com/promogr/ai_quiz
 
 import { questions } from "../data/questions.js";
 import { renderResults, resetResultsView } from "./results.js";

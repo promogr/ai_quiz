@@ -1,5 +1,6 @@
 // Author: John Kokolis <johnk@prosvasis.org>
 // License: MIT
+// Repository: https://github.com/promogr/ai_quiz
 
 let resultsChart = null;
 
