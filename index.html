@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <!-- Author: John Kokolis <johnk@prosvasis.org> | License: MIT -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Κουίζ Βασικών Γνώσεων ΤΝ</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-theme="light">
+    <noscript>
+        <div class="noscript">Για αυτό το κουίζ απαιτείται JavaScript. Ενεργοποιήστε την για να συνεχίσετε.</div>
+    </noscript>
+
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="brand">
+                <span class="brand__logo" aria-hidden="true">🤖</span>
+                <h1 class="brand__title">Κουίζ Βασικών Γνώσεων ΤΝ</h1>
+            </div>
+            <div class="header-controls">
+                <button id="storage-warning" class="banner banner--warning" hidden>
+                    Η αποθήκευση δεν είναι διαθέσιμη· η πρόοδος δεν θα αποθηκευτεί.
+                </button>
+                <div class="theme-toggle" role="presentation">
+                    <input type="checkbox" id="theme-toggle-switch" aria-label="Εναλλαγή σκοτεινού θέματος">
+                    <label for="theme-toggle-switch">
+                        <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">☀️</span>
+                        <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">🌙</span>
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main" aria-live="polite">
+            <section id="intro-view" class="card card--center">
+                <h2>Έτοιμοι να δοκιμάσετε τις γνώσεις σας στην ΤΝ;</h2>
+                <p>Απαντήστε σε κάθε ερώτηση όσο καλύτερα μπορείτε. Μπορείτε να αποχωρήσετε και να επιστρέψετε μέσα σε πέντε ώρες για να συνεχίσετε από εκεί που σταματήσατε.</p>
+                <p class="hint">Οι ερωτήσεις και οι επιλογές ανακατεύονται σε κάθε νέα προσπάθεια.</p>
+                <button id="start-quiz" class="btn btn--primary">Έναρξη Κουίζ</button>
+                <button id="resume-quiz" class="btn" hidden>Συνέχιση Προόδου</button>
+            </section>
+
+            <section id="quiz-view" class="card" hidden>
+                <div class="quiz-meta">
+                    <div class="progress">
+                        <span id="progress-index">Ερώτηση 1</span>
+                        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div id="progress-bar-fill" class="progress-bar__fill"></div>
+                        </div>
+                    </div>
+                    <span id="timer" class="timer" hidden></span>
+                </div>
+                <div class="question-block">
+                    <h2 id="question-text"></h2>
+                    <p id="question-support" class="question-support" hidden></p>
+                    <ul id="answer-list" class="answer-list" role="list"></ul>
+                </div>
+                <div class="quiz-actions">
+                    <button id="next-question" class="btn btn--primary" disabled>Επόμενη</button>
+                    <button id="finish-quiz" class="btn btn--accent" hidden>Ολοκλήρωση</button>
+                </div>
+            </section>
+
+            <section id="results-view" class="card" hidden>
+                <div class="results-header">
+                    <h2>Τα αποτελέσματά σας</h2>
+                    <p id="results-summary"></p>
+                </div>
+                <div class="results-content">
+                    <div class="chart-wrapper">
+                        <canvas id="results-chart" width="320" height="320" role="img" aria-label="Διάγραμμα αποτελεσμάτων κουίζ"></canvas>
+                    </div>
+                    <div class="results-breakdown">
+                        <p><span class="badge badge--success" id="correct-count">0</span> σωστές απαντήσεις</p>
+                        <p><span class="badge badge--danger" id="incorrect-count">0</span> λανθασμένες απαντήσεις</p>
+                    </div>
+                </div>
+                <div class="results-review">
+                    <h3>Ανασκόπηση λανθασμένων απαντήσεων</h3>
+                    <p id="no-mistakes" hidden>Τέλειο σκορ! Δεν υπάρχουν απαντήσεις για ανασκόπηση.</p>
+                    <ul id="missed-questions" class="missed-questions" role="list"></ul>
+                </div>
+                <div class="results-actions">
+                    <button id="retake-quiz" class="btn btn--primary">Νέα προσπάθεια</button>
+                    <button id="clear-progress" class="btn">Καθαρισμός προόδου</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="js/quiz.js"></script>
+</body>
+</html>
