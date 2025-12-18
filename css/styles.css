@@ -125,13 +125,13 @@ button {
 }
 
 .quiz-switcher .btn {
-    padding: 0.65rem 1.25rem;
-    font-size: 0.95rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, rgba(62, 207, 142, 0.9), rgba(21, 182, 121, 0.85));
-    color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 12px rgba(62, 207, 142, 0.3), var(--shadow-inset);
+    padding: 0.65rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, rgba(62, 207, 142, 0.9), rgba(21, 182, 121, 0.85)) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(62, 207, 142, 0.3), var(--shadow-inset) !important;
     position: relative;
     overflow: hidden;
     text-decoration: none;
@@ -147,8 +147,8 @@ button {
 }
 
 .quiz-switcher .btn:hover {
-    background: linear-gradient(135deg, rgba(62, 207, 142, 1), rgba(21, 182, 121, 1));
-    box-shadow: 0 6px 20px rgba(62, 207, 142, 0.45), var(--shadow-inset);
+    background: linear-gradient(135deg, rgba(62, 207, 142, 1), rgba(21, 182, 121, 1)) !important;
+    box-shadow: 0 6px 20px rgba(62, 207, 142, 0.45), var(--shadow-inset) !important;
     transform: translateY(-2px) scale(1.02);
 }
 
@@ -157,13 +157,13 @@ button {
 }
 
 body[data-theme="light"] .quiz-switcher .btn {
-    background: linear-gradient(135deg, rgba(21, 182, 121, 0.95), rgba(15, 150, 100, 0.9));
-    box-shadow: 0 4px 12px rgba(21, 182, 121, 0.35), 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, rgba(21, 182, 121, 0.95), rgba(15, 150, 100, 0.9)) !important;
+    box-shadow: 0 4px 12px rgba(21, 182, 121, 0.35), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 body[data-theme="light"] .quiz-switcher .btn:hover {
-    background: linear-gradient(135deg, rgba(21, 182, 121, 1), rgba(15, 150, 100, 1));
-    box-shadow: 0 6px 20px rgba(21, 182, 121, 0.5), 0 3px 6px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, rgba(21, 182, 121, 1), rgba(15, 150, 100, 1)) !important;
+    box-shadow: 0 6px 20px rgba(21, 182, 121, 0.5), 0 3px 6px rgba(0, 0, 0, 0.15) !important;
 }
 
 .btn--small {
