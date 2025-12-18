@@ -32,5 +32,9 @@ README.md         # Project documentation
 - Update UI copy or localization strings directly within `index.html`, `js/quiz.js`, and `js/results.js`.
 - Modify styles in `css/styles.css` to adjust theming beyond the built-in light/dark switch.
 
+## Debugging
+- Append `?debugQuestions=10` (or any positive number) to the page URL to limit a session to that many randomly selected questions.
+- The limit applies only while the parameter is present and generates a fresh random subset each session, making it easier to iterate on smaller pools.
+
 ## License
 Released under the [MIT License](LICENSE). You may use, modify, and distribute this project freely, provided you keep the copyright notice and author attribution.

@@ -186,22 +186,40 @@ export function renderResults({ state, questionsById }) {
                     return;
                 }
 
+                // Only show the selected option and the correct answer
+                const isSelected = selectedOptionId && optionId === selectedOptionId;
+                const isCorrectOption = option.isCorrect;
+                
+                if (!isSelected && !isCorrectOption) {
+                    return;
+                }
+
                 const pill = document.createElement("span");
                 let dataType = "";
 
                 if (option.isCorrect) {
                     dataType = "correct";
+                    const icon = document.createElement("span");
+                    icon.className = "answer-icon";
+                    icon.textContent = "✓";
+                    pill.appendChild(icon);
                 }
 
-                if (selectedOptionId && optionId === selectedOptionId) {
-                    dataType = option.isCorrect ? "correct" : "chosen";
+                if (selectedOptionId && optionId === selectedOptionId && !option.isCorrect) {
+                    dataType = "chosen";
+                    const icon = document.createElement("span");
+                    icon.className = "answer-icon";
+                    icon.textContent = "✗";
+                    pill.appendChild(icon);
                 }
 
                 if (dataType) {
                     pill.dataset.type = dataType;
                 }
 
-                pill.textContent = option.label;
+                const label = document.createElement("span");
+                label.textContent = option.label;
+                pill.appendChild(label);
                 answerContainer.appendChild(pill);
             });
 

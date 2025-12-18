@@ -2,24 +2,21 @@
 // License: MIT
 // Repository: https://github.com/promogr/ai_quiz
 
-import { questions } from "../data/questions.js";
+import { questionsYesNo } from "../data/questions_yesno.js";
 import { renderResults, resetResultsView } from "./results.js";
 
-const STORAGE_KEY = "ai-quiz-state-v1";
+const STORAGE_KEY = "ai-quiz-yesno-state-v1";
 const STATE_VERSION = 1;
-const COOKIE_NAME = "aiQuizSession";
+const COOKIE_NAME = "aiQuizYesNoSession";
 const COOKIE_MAX_SECONDS = 60 * 60 * 5; // 5 hours
 
-const questionIds = new Set(questions.map((item) => item.id));
-const questionLookup = new Map(questions.map((item) => [item.id, item]));
+const questionIds = new Set(questionsYesNo.map((item) => item.id));
+const questionLookup = new Map(questionsYesNo.map((item) => [item.id, item]));
 
-const ALL_OF_THE_ABOVE_LABEL = "Όλα τα παραπάνω";
-const NORMALISED_ALL_OF_THE_ABOVE_LABEL = ALL_OF_THE_ABOVE_LABEL.trim().toLocaleLowerCase("el");
-const PARAPANO_SUBSTRING = "παραπάνω";
 const debugQuestionLimit = getDebugQuestionLimit();
 
 if (typeof debugQuestionLimit === "number" && debugQuestionLimit > 0) {
-    console.info(`[AI Quiz] Ενεργοποιήθηκε λειτουργία debug· χρήση ${debugQuestionLimit} ερωτήσεων.`);
+    console.info(`[AI Quiz YesNo] Ενεργοποιήθηκε λειτουργία debug· χρήση ${debugQuestionLimit} ερωτήσεων.`);
 }
 
 const startButton = document.getElementById("start-quiz");
@@ -41,7 +38,7 @@ const progressBarFill = document.getElementById("progress-bar-fill");
 
 const questionText = document.getElementById("question-text");
 const questionSupport = document.getElementById("question-support");
-const answerList = document.getElementById("answer-list");
+const answerButtons = document.getElementById("answer-buttons");
 
 const body = document.body;
 
@@ -141,62 +138,16 @@ function shuffle(array) {
     return copy;
 }
 
-function ensureAllOfTheAboveLast(question, optionIds) {
-    if (!question || !Array.isArray(optionIds) || !optionIds.length) {
-        return optionIds;
-    }
-
-    const lower = NORMALISED_ALL_OF_THE_ABOVE_LABEL;
-    const substring = PARAPANO_SUBSTRING;
-    const allOfTheAboveIds = new Set(
-        (question.options || [])
-            .filter((option) => {
-                if (typeof option.label !== "string") {
-                    return false;
-                }
-                const normalised = option.label.trim().toLocaleLowerCase("el");
-                return normalised === lower || normalised.includes(substring);
-            })
-            .map((option) => option.id)
-    );
-
-    if (!allOfTheAboveIds.size) {
-        return optionIds;
-    }
-
-    const others = [];
-    const allOfTheAbove = [];
-
-    optionIds.forEach((id) => {
-        if (allOfTheAboveIds.has(id)) {
-            allOfTheAbove.push(id);
-        } else {
-            others.push(id);
-        }
-    });
-
-    return others.concat(allOfTheAbove);
-}
-
 function createInitialState() {
-    const shuffledQuestions = shuffle(questions.map((item) => item.id));
+    const shuffledQuestions = shuffle(questionsYesNo.map((item) => item.id));
     const limit = typeof debugQuestionLimit === "number" && debugQuestionLimit > 0
         ? Math.min(debugQuestionLimit, shuffledQuestions.length)
         : null;
     const questionOrder = limit ? shuffledQuestions.slice(0, limit) : shuffledQuestions;
-    const answerOrder = {};
-
-    questionOrder.forEach((questionId) => {
-        const question = questionLookup.get(questionId);
-        const optionIds = question ? question.options.map((option) => option.id) : [];
-        const shuffled = shuffle(optionIds);
-        answerOrder[questionId] = ensureAllOfTheAboveLast(question, shuffled);
-    });
 
     return {
         version: STATE_VERSION,
         questionOrder,
-        answerOrder,
         answers: {},
         currentIndex: 0,
         startedAt: Date.now(),
@@ -289,18 +240,15 @@ function validateState(candidate) {
     if (typeof candidate.answers !== "object" || candidate.answers === null) {
         return false;
     }
-    if (typeof candidate.answerOrder !== "object" || candidate.answerOrder === null) {
-        return false;
-    }
     return true;
 }
 
 function normaliseState(candidate) {
     const currentLimit = typeof debugQuestionLimit === "number" && debugQuestionLimit > 0
-        ? Math.min(debugQuestionLimit, questions.length)
+        ? Math.min(debugQuestionLimit, questionsYesNo.length)
         : null;
     const storedLimit = typeof candidate.debugLimit === "number" && candidate.debugLimit > 0
-        ? Math.min(candidate.debugLimit, questions.length)
+        ? Math.min(candidate.debugLimit, questionsYesNo.length)
         : null;
 
     if (storedLimit !== currentLimit) {
@@ -318,33 +266,13 @@ function normaliseState(candidate) {
         return null;
     }
 
-    const answerOrder = { ...candidate.answerOrder };
-    const allowedQuestionIds = new Set(questionOrder);
-
-    questionOrder.forEach((questionId) => {
-        const question = questionLookup.get(questionId);
-        if (!question) {
-            return;
-        }
-
-        const expectedLength = question.options.length;
-        const existingOrder = Array.isArray(answerOrder[questionId]) ? answerOrder[questionId] : [];
-        const filteredOrder = existingOrder.filter((optionId) => question.options.some((option) => option.id === optionId));
-
-        if (filteredOrder.length === expectedLength) {
-            answerOrder[questionId] = ensureAllOfTheAboveLast(question, filteredOrder);
-        } else {
-            const shuffled = shuffle(question.options.map((option) => option.id));
-            answerOrder[questionId] = ensureAllOfTheAboveLast(question, shuffled);
-        }
-    });
-
     const answers = {};
-    Object.entries(candidate.answers || {}).forEach(([questionId, optionId]) => {
+    const allowedQuestionIds = new Set(questionOrder);
+    Object.entries(candidate.answers || {}).forEach(([questionId, answer]) => {
         if (!allowedQuestionIds.has(questionId)) {
             return;
         }
-        answers[questionId] = optionId;
+        answers[questionId] = answer;
     });
 
     const currentIndex = Math.min(
@@ -355,7 +283,6 @@ function normaliseState(candidate) {
     return {
         version: STATE_VERSION,
         questionOrder,
-        answerOrder,
         answers,
         currentIndex,
         startedAt: Number(candidate.startedAt) || Date.now(),
@@ -409,65 +336,21 @@ function renderQuestion() {
         }
     }
 
-    if (!answerList) {
-        return;
-    }
-
-    answerList.innerHTML = "";
-    const selectedOptionId = state.answers[currentQuestionId];
-    const storedOrder = state.answerOrder?.[currentQuestionId];
-    const orderedOptionIds = storedOrder
-        ? ensureAllOfTheAboveLast(question, storedOrder)
-        : ensureAllOfTheAboveLast(question, question.options.map((option) => option.id));
-
-    state.answerOrder[currentQuestionId] = orderedOptionIds.slice();
-
-    orderedOptionIds.forEach((optionId) => {
-        const option = question.options.find((item) => item.id === optionId);
-        if (!option) {
-            return;
-        }
-
-        const listItem = document.createElement("li");
-        const label = document.createElement("label");
-        label.className = "answer-choice";
-        label.tabIndex = 0;
-        label.dataset.optionId = option.id;
-
-        const radio = document.createElement("input");
-        radio.type = "radio";
-        radio.name = "quiz-answer";
-        radio.value = option.id;
-        radio.checked = option.id === selectedOptionId;
-
-        const copy = document.createElement("div");
-        copy.className = "answer-choice__text";
-
-        const text = document.createElement("p");
-        text.textContent = option.label;
-        copy.appendChild(text);
-
-        label.appendChild(radio);
-        label.appendChild(copy);
-        listItem.appendChild(label);
-        answerList.appendChild(listItem);
-
-        if (radio.checked) {
-            label.classList.add("selected");
-        }
-
-        radio.addEventListener("change", () => {
-            handleAnswerSelection(currentQuestionId, option.id);
-        });
-
-        label.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                radio.checked = true;
-                handleAnswerSelection(currentQuestionId, option.id);
+    // Update button states
+    if (answerButtons) {
+        const buttons = answerButtons.querySelectorAll('.btn--answer');
+        const selectedAnswer = state.answers[currentQuestionId];
+        
+        buttons.forEach((button) => {
+            const answer = button.dataset.answer;
+            if ((answer === 'yes' && selectedAnswer === true) || 
+                (answer === 'no' && selectedAnswer === false)) {
+                button.classList.add('selected');
+            } else {
+                button.classList.remove('selected');
             }
         });
-    });
+    }
 
     updateNavigationButtons();
 }
@@ -497,7 +380,7 @@ function updateNavigationButtons() {
     const totalQuestions = state.questionOrder.length;
     const isLastQuestion = state.currentIndex === totalQuestions - 1;
     const currentQuestionId = state.questionOrder[state.currentIndex];
-    const hasSelection = Boolean(state.answers[currentQuestionId]);
+    const hasSelection = state.answers[currentQuestionId] !== undefined;
 
     if (nextButton) {
         nextButton.hidden = isLastQuestion;
@@ -510,18 +393,26 @@ function updateNavigationButtons() {
     }
 }
 
-function handleAnswerSelection(questionId, optionId) {
+function handleAnswerSelection(answer) {
     if (!state) {
         return;
     }
 
-    state.answers[questionId] = optionId;
+    const currentQuestionId = state.questionOrder[state.currentIndex];
+    state.answers[currentQuestionId] = answer;
     persistState();
 
-    if (answerList) {
-        const choices = answerList.querySelectorAll(".answer-choice");
-        choices.forEach((choice) => {
-            choice.classList.toggle("selected", choice.dataset.optionId === optionId);
+    // Update button visual states
+    if (answerButtons) {
+        const buttons = answerButtons.querySelectorAll('.btn--answer');
+        buttons.forEach((button) => {
+            const btnAnswer = button.dataset.answer;
+            if ((btnAnswer === 'yes' && answer === true) || 
+                (btnAnswer === 'no' && answer === false)) {
+                button.classList.add('selected');
+            } else {
+                button.classList.remove('selected');
+            }
         });
     }
 
@@ -579,8 +470,127 @@ function handleFinishQuiz() {
     }
 
     showView(resultsView);
-    renderResults({ state, questionsById: questionLookup });
+    renderResultsYesNo();
     updateResumeVisibility();
+}
+
+function renderResultsYesNo() {
+    if (!state) {
+        return;
+    }
+
+    let correctCount = 0;
+    let incorrectCount = 0;
+    const missedQuestions = [];
+
+    state.questionOrder.forEach((questionId) => {
+        const question = questionLookup.get(questionId);
+        const userAnswer = state.answers[questionId];
+        
+        if (question && userAnswer !== undefined) {
+            if (userAnswer === question.correctAnswer) {
+                correctCount++;
+            } else {
+                incorrectCount++;
+                missedQuestions.push({
+                    question: getQuestionCopy(question),
+                    userAnswer: userAnswer ? "ΝΑΙ" : "ΟΧΙ",
+                    correctAnswer: question.correctAnswer ? "ΝΑΙ" : "ΟΧΙ"
+                });
+            }
+        }
+    });
+
+    // Update summary
+    const resultsSummary = document.getElementById("results-summary");
+    if (resultsSummary) {
+        const totalQuestions = state.questionOrder.length;
+        const percentage = Math.round((correctCount / totalQuestions) * 100);
+        resultsSummary.textContent = `Απαντήσατε σωστά σε ${correctCount} από ${totalQuestions} ερωτήσεις (${percentage}%)`;
+    }
+
+    // Update counts
+    const correctCountEl = document.getElementById("correct-count");
+    const incorrectCountEl = document.getElementById("incorrect-count");
+    if (correctCountEl) correctCountEl.textContent = correctCount;
+    if (incorrectCountEl) incorrectCountEl.textContent = incorrectCount;
+
+    // Render chart
+    const chartCanvas = document.getElementById("results-chart");
+    if (chartCanvas && window.Chart) {
+        const existingChart = window.Chart.getChart(chartCanvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        new window.Chart(chartCanvas, {
+            type: "doughnut",
+            data: {
+                labels: ["Σωστές", "Λανθασμένες"],
+                datasets: [{
+                    data: [correctCount, incorrectCount],
+                    backgroundColor: ["#3ecf8e", "#e74c3c"],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14,
+                                family: "Inter, sans-serif"
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Render missed questions
+    const noMistakes = document.getElementById("no-mistakes");
+    const missedQuestionsList = document.getElementById("missed-questions");
+    
+    if (missedQuestions.length === 0) {
+        if (noMistakes) noMistakes.hidden = false;
+        if (missedQuestionsList) missedQuestionsList.innerHTML = "";
+    } else {
+        if (noMistakes) noMistakes.hidden = true;
+        if (missedQuestionsList) {
+            missedQuestionsList.innerHTML = "";
+            missedQuestions.forEach((item) => {
+                const li = document.createElement("li");
+                li.className = "missed-question";
+                
+                const questionP = document.createElement("p");
+                questionP.className = "missed-question__text";
+                questionP.textContent = item.question;
+                
+                const answersDiv = document.createElement("div");
+                answersDiv.className = "missed-question__answers";
+                
+                const userAnswerP = document.createElement("p");
+                userAnswerP.className = "user-answer-wrong";
+                userAnswerP.innerHTML = `<span class="answer-icon">✗</span> <strong>Η απάντησή σας:</strong> <span class="answer-value">${item.userAnswer}</span>`;
+                
+                const correctAnswerP = document.createElement("p");
+                correctAnswerP.className = "correct-answer-highlight";
+                correctAnswerP.innerHTML = `<span class="answer-icon">✓</span> <strong>Σωστή απάντηση:</strong> <span class="answer-value">${item.correctAnswer}</span>`;
+                
+                answersDiv.appendChild(userAnswerP);
+                answersDiv.appendChild(correctAnswerP);
+                
+                li.appendChild(questionP);
+                li.appendChild(answersDiv);
+                missedQuestionsList.appendChild(li);
+            });
+        }
+    }
 }
 
 function handleRetakeQuiz() {
@@ -644,7 +654,7 @@ function storeThemePreference(theme) {
 }
 
 function initialise() {
-    if (!questions.length) {
+    if (!questionsYesNo.length) {
         if (startButton) {
             startButton.disabled = true;
         }
@@ -659,13 +669,26 @@ function initialise() {
 
     if (state && state.finished) {
         showView(resultsView);
-        renderResults({ state, questionsById: questionLookup });
+        renderResultsYesNo();
     } else {
         showView(introView);
     }
 
     updateResumeVisibility();
     initialiseTheme();
+
+    // Setup answer button listeners
+    if (answerButtons) {
+        const yesButton = answerButtons.querySelector('[data-answer="yes"]');
+        const noButton = answerButtons.querySelector('[data-answer="no"]');
+        
+        if (yesButton) {
+            yesButton.addEventListener('click', () => handleAnswerSelection(true));
+        }
+        if (noButton) {
+            noButton.addEventListener('click', () => handleAnswerSelection(false));
+        }
+    }
 }
 
 if (startButton) {

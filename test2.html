@@ -5,18 +5,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Διαδραστικό κουίζ βασικών γνώσεων Τεχνητής Νοημοσύνης με ελληνική διεπαφή και αποθήκευση προόδου.">
+    <meta name="description" content="Διαδραστικό κουίζ ΝΑΙ/ΟΧΙ για Τεχνητή Νοημοσύνη με ελληνική διεπαφή και αποθήκευση προόδου.">
     <meta name="author" content="John Kokolis">
     <meta name="theme-color" content="#3ecf8e">
-    <meta property="og:title" content="Κουίζ Βασικών Γνώσεων ΤΝ">
-    <meta property="og:description" content="Μάθετε και αξιολογήστε τις γνώσεις σας στην Τεχνητή Νοημοσύνη με αυτό το δωρεάν ελληνικό κουίζ.">
+    <meta property="og:title" content="Κουίζ ΝΑΙ/ΟΧΙ ΤΝ">
+    <meta property="og:description" content="Μάθετε και αξιολογήστε τις γνώσεις σας στην Τεχνητή Νοημοσύνη με αυτό το δωρεάν ελληνικό κουίζ ΝΑΙ/ΟΧΙ.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://github.com/promogr/ai_quiz">
     <meta property="og:locale" content="el_GR">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Κουίζ Βασικών Γνώσεων ΤΝ">
-    <meta name="twitter:description" content="Δοκιμάστε τις γνώσεις σας στην Τεχνητή Νοημοσύνη μέσω ενός απλού ελληνικού κουίζ.">
-    <title>Κουίζ Βασικών Γνώσεων ΤΝ</title>
+    <meta name="twitter:title" content="Κουίζ ΝΑΙ/ΟΧΙ ΤΝ">
+    <meta name="twitter:description" content="Δοκιμάστε τις γνώσεις σας στην Τεχνητή Νοημοσύνη μέσω ενός απλού ελληνικού κουίζ ΝΑΙ/ΟΧΙ.">
+    <title>Κουίζ ΝΑΙ/ΟΧΙ ΤΝ</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
@@ -30,14 +30,14 @@
         <header class="app-header">
             <div class="brand">
                 <span class="brand__logo" aria-hidden="true">🤖</span>
-                <h1 class="brand__title">Κουίζ Βασικών Γνώσεων ΤΝ</h1>
+                <h1 class="brand__title">Κουίζ ΝΑΙ/ΟΧΙ ΤΝ</h1>
             </div>
             <div class="header-controls">
                 <button id="storage-warning" class="banner banner--warning" hidden>
                     Η αποθήκευση δεν είναι διαθέσιμη· η πρόοδος δεν θα αποθηκευτεί.
                 </button>
                 <div class="quiz-switcher">
-                    <a href="test2.html" class="btn btn--small">ΝΑΙ/ΟΧΙ Κουίζ</a>
+                    <a href="index.html" class="btn btn--small">Πολλαπλής Επιλογής</a>
                 </div>
                 <div class="theme-toggle" role="presentation">
                     <input type="checkbox" id="theme-toggle-switch" aria-label="Εναλλαγή σκοτεινού θέματος">
@@ -52,8 +52,8 @@
         <main class="app-main" aria-live="polite">
             <section id="intro-view" class="card card--center">
                 <h2>Έτοιμοι να δοκιμάσετε τις γνώσεις σας στην ΤΝ;</h2>
-                <p>Απαντήστε σε κάθε ερώτηση όσο καλύτερα μπορείτε. Μπορείτε να αποχωρήσετε και να επιστρέψετε μέσα σε πέντε ώρες για να συνεχίσετε από εκεί που σταματήσατε.</p>
-                <p class="hint">Οι ερωτήσεις και οι επιλογές ανακατεύονται σε κάθε νέα προσπάθεια.</p>
+                <p>Απαντήστε ΝΑΙ ή ΟΧΙ σε κάθε ερώτηση. Μπορείτε να αποχωρήσετε και να επιστρέψετε μέσα σε πέντε ώρες για να συνεχίσετε από εκεί που σταματήσατε.</p>
+                <p class="hint">Οι ερωτήσεις ανακατεύονται σε κάθε νέα προσπάθεια.</p>
                 <button id="start-quiz" class="btn btn--primary">Έναρξη Κουίζ</button>
                 <button id="resume-quiz" class="btn" hidden>Συνέχιση Προόδου</button>
             </section>
@@ -71,7 +71,10 @@
                 <div class="question-block">
                     <h2 id="question-text"></h2>
                     <p id="question-support" class="question-support" hidden></p>
-                    <ul id="answer-list" class="answer-list" role="list"></ul>
+                    <div id="answer-buttons" class="answer-buttons">
+                        <button class="btn btn--answer" data-answer="yes">ΝΑΙ</button>
+                        <button class="btn btn--answer" data-answer="no">ΟΧΙ</button>
+                    </div>
                 </div>
                 <div class="quiz-actions">
                     <button id="next-question" class="btn btn--primary" disabled>Επόμενη</button>
@@ -107,6 +110,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="js/quiz.js"></script>
+    <script type="module" src="js/quiz2.js"></script>
 </body>
 </html>
