@@ -189,7 +189,7 @@ function createInitialState() {
     questionOrder.forEach((questionId) => {
         const question = questionLookup.get(questionId);
         const optionIds = question ? question.options.map((option) => option.id) : [];
-        const shuffled = shuffle(optionIds);
+        const shuffled = question?.noShuffle ? optionIds : shuffle(optionIds);
         answerOrder[questionId] = ensureAllOfTheAboveLast(question, shuffled);
     });
 
@@ -334,7 +334,8 @@ function normaliseState(candidate) {
         if (filteredOrder.length === expectedLength) {
             answerOrder[questionId] = ensureAllOfTheAboveLast(question, filteredOrder);
         } else {
-            const shuffled = shuffle(question.options.map((option) => option.id));
+            const optionIds = question.options.map((option) => option.id);
+            const shuffled = question?.noShuffle ? optionIds : shuffle(optionIds);
             answerOrder[questionId] = ensureAllOfTheAboveLast(question, shuffled);
         }
     });
