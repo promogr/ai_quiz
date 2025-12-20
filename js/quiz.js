@@ -582,6 +582,13 @@ function handleFinishQuiz() {
     showView(resultsView);
     renderResults({ state, questionsById: questionLookup });
     updateResumeVisibility();
+    
+    // Auto-scroll to results
+    if (resultsView) {
+        setTimeout(() => {
+            resultsView.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+    }
 }
 
 function handleRetakeQuiz() {
